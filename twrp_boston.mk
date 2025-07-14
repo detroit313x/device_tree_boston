@@ -35,4 +35,4 @@ PRODUCT_NAME := twrp_boston
 PRODUCT_BRAND := motorola
 PRODUCT_MODEL := motorola
 PRODUCT_MANUFACTURER := motorola
-PRODUCT_RELEASE_NAME := motorola motorola
+PRODUCT_RELEASE_NAME := Moto G Stylus 5G-2024
