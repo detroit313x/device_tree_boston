@@ -26,9 +26,14 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 $(call inherit-product, device/motorola/boston/device.mk)
 
 # Inherit some common twrp stuff.
-$(call inherit-product, vendor/twrp/config/common.mk)
-$(call inherit-product, vendor/twrp/config/gsm.mk)
+$(call inherit-product, vendor/pb/config/common.mk)
+$(call inherit-product, vendor/pb/config/gsm.mk)
 
+# Inherit PBRP
+$(call inherit-product, vendor/pb/config/common.mk)
+
+PRODUCT_NAME := twrp_boston
+PRODUCT_DEVICE := boston
 # Device identifier. This must come after all inclusions
 PRODUCT_DEVICE := boston
 PRODUCT_NAME := twrp_boston
