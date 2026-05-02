@@ -18,9 +18,13 @@
 
 LOCAL_PATH := device/motorola/boston
 
+# Virtual A/B with a dedicated vendor ramdisk.
+$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/launch_with_vendor_ramdisk.mk)
+
 # A/B
 AB_OTA_PARTITIONS += \
     boot \
+    vendor_boot \
     system \
     vendor
 
@@ -32,8 +36,9 @@ AB_OTA_POSTINSTALL_CONFIG += \
 
 # Boot control HAL
 PRODUCT_PACKAGES += \
-    android.hardware.boot@1.0-impl \
-    android.hardware.boot@1.0-service
+    android.hardware.boot@1.2-impl \
+    android.hardware.boot@1.2-impl.recovery \
+    android.hardware.boot@1.2-service
 
 PRODUCT_PACKAGES += \
     bootctrl.parrot
@@ -48,8 +53,20 @@ PRODUCT_PACKAGES += \
     otapreopt_script \
     cppreopts.sh \
     update_engine \
+    checkpoint_gc \
     update_verifier \
     update_engine_sideload
+
+# Dynamic partitions and userspace fastboot are required on modern A/B devices.
+PRODUCT_USE_DYNAMIC_PARTITIONS := true
+
+PRODUCT_PACKAGES += \
+    android.hardware.fastboot@1.1-impl-mock \
+    fastbootd
+
+# First-stage mount metadata must live in vendor ramdisk for vendor_boot recovery.
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/fstab.qcom:$(TARGET_COPY_OUT_VENDOR_RAMDISK)/first_stage_ramdisk/fstab.qcom
 
 # Include ASuite tools
 PRODUCT_PACKAGES += \

@@ -16,5 +16,5 @@
 # limitations under the License.
 #
 
-add_lunch_combo twrp_boston-userdebug
-add_lunch_combo twrp_boston-eng
+add_lunch_combo pbrp_boston-userdebug
+add_lunch_combo pbrp_boston-eng

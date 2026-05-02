@@ -17,4 +17,8 @@
 #
 
 PRODUCT_MAKEFILES := \
-     $(LOCAL_DIR)/twrp_boston.mk
+     $(LOCAL_DIR)/pbrp_boston.mk
+
+COMMON_LUNCH_CHOICES := \
+    pbrp_boston-eng \
+    pbrp_boston-userdebug

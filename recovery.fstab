@@ -13,4 +13,5 @@
 /data               f2fs      /dev/block/bootdevice/by-name/userdata                                flags=display="Data";
 /sdcard1            vfat      /dev/block/mmcblk0p1                                                  flags=display="Sdcard1";
 /boot               emmc      /dev/block/bootdevice/by-name/boot                                    flags=display="Boot";backup=1;flashimg=1;
+/vendor_boot        emmc      /dev/block/bootdevice/by-name/vendor_boot                             flags=display="Vendor Boot";backup=1;flashimg=1;
 /misc               emmc      /dev/block/bootdevice/by-name/misc                                    flags=display="Misc";backup=1;flashimg=1;
