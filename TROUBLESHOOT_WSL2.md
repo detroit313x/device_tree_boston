@@ -70,10 +70,14 @@ cd ~/pbrp-build/source
 # 2. Install build dependencies (one-time)
 sudo apt-get update
 sudo apt-get install -y \
-    git-core gnupg flex bison build-essential zip curl zlib1g-dev \
-    gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev \
-    x11-utils libxml2 libxml2-utils xsltproc openjdk-17-jdk \
-    libssl-dev libffi-dev python3 python3-pip
+    bash bc bison build-essential ca-certificates curl flex \
+    g++-multilib gcc-multilib git-core gnupg libc6-dev-i386 \
+    libffi-dev libssl-dev libxml2 libxml2-utils openjdk-17-jdk \
+    python3 python3-dev python3-pip rsync unzip x11-utils \
+    xsltproc xz-utils zip zlib1g-dev
+
+# If lib32ncurses-dev is unavailable on your Ubuntu release:
+sudo apt-get install -y lib32ncurses5-dev
 
 # 3. Install repo tool (if not already installed)
 if ! command -v repo &> /dev/null; then

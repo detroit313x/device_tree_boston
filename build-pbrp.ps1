@@ -52,8 +52,8 @@ if ($buildExitCode -eq 0) {
     Write-Host "=========================================="
     
     # Try to find and report the output
-    $recoveryImg = "$scriptDirWSL/pbrp-build/source/out/target/product/boston/vendor_boot.img"
-    Write-Host "Vendor boot image: $recoveryImg"
+    $recoveryImg = (wsl bash -lc "printf '%s' \"\$HOME/pbrp-build/source/out/target/product/boston/vendor_boot.img\"" | Out-String).Trim()
+    Write-Host "Vendor boot image (WSL path): $recoveryImg"
     Write-Host ""
     Write-Host "To flash to your device:"
     Write-Host "1. Connect device via USB with USB debugging enabled"
