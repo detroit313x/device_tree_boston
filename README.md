@@ -1,6 +1,6 @@
 # Motorola Boston PBRP Device Tree
 
-This repository contains the Project Byzantium Recovery Project (PBRP) device tree for Motorola Boston (`boston`, Moto G Stylus 5G 2024).
+This repository contains the Pitch Black Recovery Project (PBRP) device tree for Motorola Boston (`boston`, Moto G Stylus 5G 2024).
 
 ## What This Repo Contains
 
