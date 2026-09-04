@@ -1,0 +1,18 @@
+/dev/null                 0666   root       root
+/dev/zero                 0666   root       root
+/dev/full                 0666   root       root
+/dev/random               0666   root       root
+/dev/urandom              0666   root       root
+/dev/ptmx                 0666   root       root
+/dev/pts/*                0666   root       root
+/dev/ashmem               0666   root       root
+
+/dev/block/mmcblk0        0660   root       disk
+/dev/block/mmcblk0p*      0660   root       disk
+/dev/block/bootdevice/*   0660   root       disk
+
+/dev/ttyHS0               0660   root       system
+/dev/ttyO0                0660   root       system
+
+/dev/bus/usb/*            0660   root       usb
+/dev/bus/usb/*/*          0660   root       usb

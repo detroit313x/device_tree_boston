@@ -1,0 +1,40 @@
+on early-init
+    mount devtmpfs devtmpfs /dev mode=0755,nosuid,noexec
+    mount proc proc /proc
+    mount sysfs sysfs /sys
+    mount securityfs securityfs /sys/kernel/security
+    chmod 0755 /sys/kernel/debug
+    
+    mkdir /dev/pts 0755 root root
+    mkdir /dev/socket 0755 root root
+    mkdir /dev/memcg_event_control 0755 root system
+    mkdir /recovery 0000 root root
+    mkdir /mnt 0755 root system
+    mkdir /vendor_boot 0755 root root
+
+on init
+    write /sys/module/lowmemorykiller/parameters/minfree_0 18432
+    write /sys/module/lowmemorykiller/parameters/minfree_1 36864
+    write /sys/module/lowmemorykiller/parameters/minfree_2 55296
+    write /sys/module/lowmemorykiller/parameters/minfree_3 73728
+    write /sys/module/lowmemorykiller/parameters/minfree_4 92160
+    write /sys/module/lowmemorykiller/parameters/minfree_5 110592
+    
+    load_all_props
+
+on fs
+    mount_all /fstab.qcom --early
+    mount_all /fstab.qcom --late
+
+on late-init
+    trigger early-boot
+    trigger boot
+
+on early-boot
+    class_start core
+
+on boot
+    class_start main
+    class_start hal_default
+    setprop sys.boot_from_recovery 1
+    setprop sys.usb.state adb

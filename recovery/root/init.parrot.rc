@@ -1,0 +1,9 @@
+# Snapdragon 7+ Gen 2 (parrot) Platform Initialization
+
+on fs
+    mount_all /fstab.qcom --early
+    insmod /vendor/lib/modules/qti_glink.ko
+    insmod /vendor/lib/modules/qti_glink_rpm.ko
+
+on boot
+    class_start platform_service
