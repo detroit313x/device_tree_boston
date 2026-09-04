@@ -1,0 +1,138 @@
+name: Build Vendor Boot - Motorola boston
+
+on:
+  workflow_dispatch:
+    inputs:
+      clean_build:
+        description: 'Clean build (remove previous artifacts)'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      create_release:
+        description: 'Create GitHub release after build'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+env:
+  DEBIAN_FRONTEND: noninteractive
+  ANDROID_BUILD_TOP: ${{ github.workspace }}/pbrp-build
+
+jobs:
+  build:
+    name: Build Vendor Boot Image
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    
+    steps:
+      - name: Checkout Device Tree
+        uses: actions/checkout@v4
+
+      - name: Setup Build Environment
+        run: |
+          echo "Installing dependencies..."
+          sudo apt-get update
+          sudo apt-get install -y bc bison build-essential curl flex g++ g++-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool libncurses5 libncurses5-dev libreadline-dev libreadline6-dev libssl-dev libx11-dev libxml2 libxml2-utils lzop m4 make ncurses-dev openjdk-11-jdk openssl p7zip perl pkg-config python3 python3-dev rsync schedtool squashfs-tools ssh sudo tar texinfo unzip w3m wget xsltproc zip zlib1g zlib1g-dev
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          echo "Dependencies installed"
+
+      - name: Download Repo Tool
+        run: |
+          mkdir -p ~/bin
+          curl -s https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+          chmod +x ~/bin/repo
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Initialize PBRP
+        run: |
+          mkdir -p $ANDROID_BUILD_TOP
+          cd $ANDROID_BUILD_TOP
+          repo init -u https://github.com/PitchBlackRecoveryProject/manifest_pb -b android-12.1
+          echo "PBRP initialized"
+
+      - name: Sync PBRP Source
+        run: |
+          cd $ANDROID_BUILD_TOP
+          repo sync -j4
+          echo "PBRP synced"
+
+      - name: Integrate Device Tree
+        run: |
+          cd $ANDROID_BUILD_TOP
+          git clone https://github.com/${{ github.repository }}.git device/motorola/boston
+          cd device/motorola/boston
+          git checkout ${{ github.ref_name }}
+          echo "Device tree integrated"
+
+      - name: Build Vendor Boot
+        run: |
+          cd $ANDROID_BUILD_TOP
+          source build/envsetup.sh
+          lunch pbrp_boston-userdebug
+          echo "Starting build..."
+          mka vendorbootimage -j4
+          echo "Build completed"
+
+      - name: Verify Output
+        run: |
+          VENDOR_BOOT="$ANDROID_BUILD_TOP/out/target/product/boston/vendor_boot.img"
+          if [ -f "$VENDOR_BOOT" ]; then
+            SIZE=$(stat -c%s "$VENDOR_BOOT")
+            SIZE_MB=$((SIZE / 1024 / 1024))
+            echo "vendor_boot.img size: ${SIZE_MB} MB"
+            echo "VENDOR_BOOT_SIZE=${SIZE_MB}" >> $GITHUB_ENV
+            echo "VENDOR_BOOT_PATH=$VENDOR_BOOT" >> $GITHUB_ENV
+          else
+            echo "ERROR: vendor_boot.img not found"
+            exit 1
+          fi
+
+      - name: Create Checksums
+        run: |
+          cd ${{ env.VENDOR_BOOT_PATH }}
+          md5sum ${{ env.VENDOR_BOOT_PATH }} > vendor_boot.img.md5
+          sha256sum ${{ env.VENDOR_BOOT_PATH }} > vendor_boot.img.sha256
+          echo "Checksums created"
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vendor_boot-${{ github.run_number }}
+          path: |
+            ${{ env.VENDOR_BOOT_PATH }}
+            vendor_boot.img.md5
+            vendor_boot.img.sha256
+          retention-days: 30
+
+      - name: Create Release
+        if: ${{ inputs.create_release == 'true' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v1.0-vendor-boot-${{ github.run_number }}
+          name: Vendor Boot Release v${{ github.run_number }}
+          body: |
+            Vendor Boot Image - Motorola boston
+            Size: ${{ env.VENDOR_BOOT_SIZE }} MB
+            
+            Flash with:
+            adb reboot bootloader
+            fastboot flash vendor_boot vendor_boot.img
+          files: |
+            ${{ env.VENDOR_BOOT_PATH }}
+            vendor_boot.img.md5
+            vendor_boot.img.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "✅ Build Complete!"
+          echo "Image Size: ${{ env.VENDOR_BOOT_SIZE }} MB"
+          echo "Check Actions tab for artifacts"
